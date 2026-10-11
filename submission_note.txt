@@ -1,0 +1,24 @@
+SUBMISSION NOTE: Task 1 - Prepare and Validate Crop Price Dataset
+Client: GreenField Farmers Co-op
+Intern: Mushtaq Ahmad
+Repository: https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
+
+Summary of Work Completed:
+1. Ingested raw agricultural price and market arrivals time-series data for GreenField Farmers Co-op's top 3 staple crops: Wheat, Rice, and Potato spanning 2022 to 2024.
+2. Built an automated data cleaning pipeline (`src/data_pipeline.py`) that:
+   - Standardized heterogeneous raw date formats (%d/%m/%Y, %m-%d-%Y, %Y-%m-%d) into uniform ISO-8601 YYYY-MM-DD.
+   - Handled missing modal prices using linear time-series interpolation within each crop group to preserve temporal continuity.
+   - Imputed missing market arrival volumes using crop-specific median supply levels.
+   - Enforced pricing sanity boundaries (Min_Price <= Modal_Price <= Max_Price).
+3. Saved the modeling-ready dataset to `data/processed/crop_prices_cleaned.csv` with zero missing values.
+4. Implemented an automated quality validation suite (`src/data_validator.py`) executing 5 verification checks:
+   - Zero missing/null values across all columns.
+   - Date range boundaries (2022 to 2024) and monotonic chronological ordering.
+   - Complete coverage of all 3 target crops (Wheat, Rice, Potato).
+   - Price sanity (positivity and valid spreads).
+   - Supply arrivals and realistic weather bounds.
+5. Documented the entire dataset provenance, cleaning methodology, and validation metrics in `README.md`.
+6. Created an interactive exploratory Jupyter Notebook (`notebooks/01_data_cleaning_and_validation.ipynb`).
+
+Why It Was Done This Way:
+Data cleaning and strict validation form the foundational bedrock for time-series forecasting. High-variance anomalies, date misalignments, or unhandled nulls propagate into model degradation in downstream tasks (Tasks 2 and 3). Establishing this robust data foundation ensures reliable baseline model evaluation and API stability.
