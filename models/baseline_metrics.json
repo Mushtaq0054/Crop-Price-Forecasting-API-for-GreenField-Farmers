@@ -1,0 +1,40 @@
+{
+    "Naive_Persistence_Baseline": {
+        "RMSE": 56.12,
+        "MAE": 42.13,
+        "R2_Score": 0.9958,
+        "MAPE_Percent": 1.48
+    },
+    "Linear_Regression_Model": {
+        "RMSE": 46.85,
+        "MAE": 35.40,
+        "R2_Score": 0.9971,
+        "MAPE_Percent": 1.22
+    },
+    "Performance_Improvement": {
+        "RMSE_Reduction_Percent": 16.52,
+        "MAE_Reduction_Percent": 15.97
+    },
+    "Per_Crop_Breakdown_Linear_Regression": {
+        "Wheat": {
+            "RMSE": 35.21,
+            "MAE": 27.65,
+            "R2": 0.9892
+        },
+        "Rice": {
+            "RMSE": 44.18,
+            "MAE": 34.20,
+            "R2": 0.9854
+        },
+        "Potato": {
+            "RMSE": 57.82,
+            "MAE": 44.35,
+            "R2": 0.9821
+        }
+    },
+    "Dataset_Split_Info": {
+        "Train_Samples": 375,
+        "Test_Samples": 93,
+        "Cutoff_Date": "2024-05-27"
+    }
+}

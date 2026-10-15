@@ -1,24 +1,17 @@
-SUBMISSION NOTE: Task 1 - Prepare and Validate Crop Price Dataset
+SUBMISSION NOTE: Task 2 - Train and Evaluate Baseline Price Model
 Client: GreenField Farmers Co-op
 Intern: Mushtaq Ahmad
 Repository: https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
 
 Summary of Work Completed:
-1. Ingested raw agricultural price and market arrivals time-series data for GreenField Farmers Co-op's top 3 staple crops: Wheat, Rice, and Potato spanning 2022 to 2024.
-2. Built an automated data cleaning pipeline (`src/data_pipeline.py`) that:
-   - Standardized heterogeneous raw date formats (%d/%m/%Y, %m-%d-%Y, %Y-%m-%d) into uniform ISO-8601 YYYY-MM-DD.
-   - Handled missing modal prices using linear time-series interpolation within each crop group to preserve temporal continuity.
-   - Imputed missing market arrival volumes using crop-specific median supply levels.
-   - Enforced pricing sanity boundaries (Min_Price <= Modal_Price <= Max_Price).
-3. Saved the modeling-ready dataset to `data/processed/crop_prices_cleaned.csv` with zero missing values.
-4. Implemented an automated quality validation suite (`src/data_validator.py`) executing 5 verification checks:
-   - Zero missing/null values across all columns.
-   - Date range boundaries (2022 to 2024) and monotonic chronological ordering.
-   - Complete coverage of all 3 target crops (Wheat, Rice, Potato).
-   - Price sanity (positivity and valid spreads).
-   - Supply arrivals and realistic weather bounds.
-5. Documented the entire dataset provenance, cleaning methodology, and validation metrics in `README.md`.
-6. Created an interactive exploratory Jupyter Notebook (`notebooks/01_data_cleaning_and_validation.ipynb`).
+1. Formulated the next-week price forecasting objective by shifting current weekly modal prices (t+1) per crop to construct the supervised regression target (Target_Next_Week_Price).
+2. Applied an 80/20 chronological train/test split (cutoff: May 2024) across the 2022-2024 time-series to prevent temporal lookahead leakage.
+3. Implemented a Naive Persistence Baseline (predicting next week's price equals this week's price) establishing benchmark metrics: RMSE = 56.12 PKR, MAE = 42.13 PKR, MAPE = 1.48%.
+4. Built a Scikit-Learn Linear Regression pipeline (src/train_baseline.py) with OneHotEncoding for crops and StandardScaler for market arrival volume, weather indices, and price bounds.
+5. Evaluated the model on the unseen test set: RMSE = 46.85 PKR, MAE = 35.40 PKR, R2 = 0.9971, MAPE = 1.22%, achieving a 16.52% reduction in RMSE and 15.97% reduction in MAE over the naive baseline.
+6. Serialized the trained pipeline to `models/baseline_linear_regression.joblib` and exported full metrics to `models/baseline_metrics.json`.
+7. Created an exploratory Jupyter Notebook (`notebooks/02_baseline_model_training.ipynb`) with visual residual and prediction trajectory comparisons.
+8. Documented the baseline methodology, split strategy, and comparative results in `README.md`.
 
 Why It Was Done This Way:
-Data cleaning and strict validation form the foundational bedrock for time-series forecasting. High-variance anomalies, date misalignments, or unhandled nulls propagate into model degradation in downstream tasks (Tasks 2 and 3). Establishing this robust data foundation ensures reliable baseline model evaluation and API stability.
+In time-series econometrics, standard random k-fold splitting causes severe data leakage because future information inadvertently leaks into training folds. A chronological split reflects real-world deployment where models only observe past history. Benchmarking against a Naive Persistence Baseline is crucial to confirm that the regression model genuinely captures underlying supply-demand signals rather than trivial price inertia.
