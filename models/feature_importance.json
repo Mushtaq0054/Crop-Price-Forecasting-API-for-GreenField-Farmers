@@ -1,52 +1,94 @@
 [
     {
-        "Feature": "Price_MA_3",
-        "Importance_Score": 0.3820,
-        "Description": "3-week short-term moving average price (primary momentum indicator)"
+        "Feature": "Min_Price_PKR",
+        "Importance_Score": 0.5233
     },
     {
-        "Feature": "Price_Lag_1",
-        "Importance_Score": 0.2450,
-        "Description": "Previous week modal price (immediate inertia)"
+        "Feature": "Modal_Price_PKR",
+        "Importance_Score": 0.3308
     },
     {
-        "Feature": "Price_MA_6",
-        "Importance_Score": 0.1280,
-        "Description": "6-week medium-term moving average price"
+        "Feature": "Max_Price_PKR",
+        "Importance_Score": 0.1025
     },
     {
-        "Feature": "Market_Arrival_Tonnes",
-        "Importance_Score": 0.0810,
-        "Description": "Wholesale mandi weekly supply volume"
+        "Feature": "Arrival_Lag_1",
+        "Importance_Score": 0.0123
     },
     {
-        "Feature": "Month_Cos",
-        "Importance_Score": 0.0520,
-        "Description": "Cyclical annual harvest seasonality cosine encoding"
+        "Feature": "Arrival_MA_3",
+        "Importance_Score": 0.0085
     },
     {
         "Feature": "Temperature_C",
-        "Importance_Score": 0.0380,
-        "Description": "Average ambient temperature during the trading week"
+        "Importance_Score": 0.0029
+    },
+    {
+        "Feature": "Price_MA_3",
+        "Importance_Score": 0.0027
+    },
+    {
+        "Feature": "Temp_Anomaly",
+        "Importance_Score": 0.0026
+    },
+    {
+        "Feature": "Price_Lag_1",
+        "Importance_Score": 0.0025
+    },
+    {
+        "Feature": "Arrival_Lag_2",
+        "Importance_Score": 0.0024
     },
     {
         "Feature": "Supply_Shock_Index",
-        "Importance_Score": 0.0270,
-        "Description": "Ratio of current arrivals to rolling 3-week average"
+        "Importance_Score": 0.0015
     },
     {
-        "Feature": "Price_Volatility_4",
-        "Importance_Score": 0.0210,
-        "Description": "4-week rolling price standard deviation"
+        "Feature": "Market_Arrival_Tonnes",
+        "Importance_Score": 0.0014
+    },
+    {
+        "Feature": "Price_Lag_2",
+        "Importance_Score": 0.0014
+    },
+    {
+        "Feature": "Price_MA_6",
+        "Importance_Score": 0.001
+    },
+    {
+        "Feature": "Price_Lag_4",
+        "Importance_Score": 0.0009
+    },
+    {
+        "Feature": "Price_Momentum_1",
+        "Importance_Score": 0.0009
     },
     {
         "Feature": "Rainfall_MA_2",
-        "Importance_Score": 0.0150,
-        "Description": "2-week cumulative precipitation"
+        "Importance_Score": 0.0007
+    },
+    {
+        "Feature": "Arrival_Lag_4",
+        "Importance_Score": 0.0006
+    },
+    {
+        "Feature": "Price_Volatility_4",
+        "Importance_Score": 0.0004
+    },
+    {
+        "Feature": "Month_Cos",
+        "Importance_Score": 0.0003
+    },
+    {
+        "Feature": "Rainfall_mm",
+        "Importance_Score": 0.0003
+    },
+    {
+        "Feature": "Month_Sin",
+        "Importance_Score": 0.0002
     },
     {
         "Feature": "Crop_Wheat",
-        "Importance_Score": 0.0110,
-        "Description": "Wheat commodity indicator flag"
+        "Importance_Score": 0.0
     }
 ]
