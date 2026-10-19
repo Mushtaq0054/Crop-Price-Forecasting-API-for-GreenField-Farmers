@@ -1,17 +1,24 @@
-SUBMISSION NOTE: Task 2 - Train and Evaluate Baseline Price Model
+SUBMISSION NOTE: Task 3 - Add Feature Engineering and Improve Model
 Client: GreenField Farmers Co-op
 Intern: Mushtaq Ahmad
 Repository: https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
 
 Summary of Work Completed:
-1. Formulated the next-week price forecasting objective by shifting current weekly modal prices (t+1) per crop to construct the supervised regression target (Target_Next_Week_Price).
-2. Applied an 80/20 chronological train/test split (cutoff: May 2024) across the 2022-2024 time-series to prevent temporal lookahead leakage.
-3. Implemented a Naive Persistence Baseline (predicting next week's price equals this week's price) establishing benchmark metrics: RMSE = 56.12 PKR, MAE = 42.13 PKR, MAPE = 1.48%.
-4. Built a Scikit-Learn Linear Regression pipeline (src/train_baseline.py) with OneHotEncoding for crops and StandardScaler for market arrival volume, weather indices, and price bounds.
-5. Evaluated the model on the unseen test set: RMSE = 46.85 PKR, MAE = 35.40 PKR, R2 = 0.9971, MAPE = 1.22%, achieving a 16.52% reduction in RMSE and 15.97% reduction in MAE over the naive baseline.
-6. Serialized the trained pipeline to `models/baseline_linear_regression.joblib` and exported full metrics to `models/baseline_metrics.json`.
-7. Created an exploratory Jupyter Notebook (`notebooks/02_baseline_model_training.ipynb`) with visual residual and prediction trajectory comparisons.
-8. Documented the baseline methodology, split strategy, and comparative results in `README.md`.
+1. Engineered a comprehensive domain feature set in `src/feature_engineering.py`:
+   - Historical price lags (t-1, t-2, t-4 weeks) and arrival volume lags.
+   - Rolling moving averages (3-week and 6-week) and 4-week price volatility (rolling standard deviation).
+   - Supply shock index (ratio of current arrivals to 3-week rolling supply) and 1-week price momentum.
+   - Environmental indicators (2-week cumulative rainfall and seasonal temperature anomalies).
+   - Cyclical calendar encoding (sine/cosine of month) to capture harvest cycles without December/January discontinuities.
+2. Trained and benchmarked multiple regression candidates on the identical chronological test set in `src/train_improved_model.py`:
+   - Linear Regression with features: RMSE = 34.20 PKR (27.0% error reduction).
+   - Random Forest Regressor: RMSE = 28.95 PKR (38.2% error reduction).
+   - Gradient Boosting Regressor (Winning Model): RMSE = 26.40 PKR, MAE = 18.95 PKR, R2 = 0.9991 (43.65% RMSE reduction and 46.47% MAE reduction over the Task 2 baseline).
+3. Extracted feature importances from the ensemble model (`models/feature_importance.json`):
+   - Identified top drivers: `Price_MA_3` (38.2%), `Price_Lag_1` (24.5%), `Price_MA_6` (12.8%), `Market_Arrival_Tonnes` (8.1%), and `Month_Cos` (5.2%).
+4. Serialized the winning Gradient Boosting model pipeline to `models/improved_crop_model.joblib` and exported metrics to `models/improved_model_metrics.json`.
+5. Created an interactive Jupyter Notebook (`notebooks/03_feature_engineering_and_model_improvement.ipynb`) with visual before/after error comparisons and feature importance bar charts.
+6. Documented all engineered features, comparative metrics table, and importance findings in `README.md`.
 
 Why It Was Done This Way:
-In time-series econometrics, standard random k-fold splitting causes severe data leakage because future information inadvertently leaks into training folds. A chronological split reflects real-world deployment where models only observe past history. Benchmarking against a Naive Persistence Baseline is crucial to confirm that the regression model genuinely captures underlying supply-demand signals rather than trivial price inertia.
+Raw agricultural prices alone cannot account for delayed market responses or seasonal harvesting gluts. Engineering rolling moving averages smooths short-term fluctuations while lag features capture price inertia. Nonlinear tree-based models like Gradient Boosting capture complex interactions between rainfall anomalies, sudden supply arrivals, and commodity-specific demand far more effectively than linear models, cutting prediction error nearly in half.

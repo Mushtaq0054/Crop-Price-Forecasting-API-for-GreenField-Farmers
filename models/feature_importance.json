@@ -1,0 +1,52 @@
+[
+    {
+        "Feature": "Price_MA_3",
+        "Importance_Score": 0.3820,
+        "Description": "3-week short-term moving average price (primary momentum indicator)"
+    },
+    {
+        "Feature": "Price_Lag_1",
+        "Importance_Score": 0.2450,
+        "Description": "Previous week modal price (immediate inertia)"
+    },
+    {
+        "Feature": "Price_MA_6",
+        "Importance_Score": 0.1280,
+        "Description": "6-week medium-term moving average price"
+    },
+    {
+        "Feature": "Market_Arrival_Tonnes",
+        "Importance_Score": 0.0810,
+        "Description": "Wholesale mandi weekly supply volume"
+    },
+    {
+        "Feature": "Month_Cos",
+        "Importance_Score": 0.0520,
+        "Description": "Cyclical annual harvest seasonality cosine encoding"
+    },
+    {
+        "Feature": "Temperature_C",
+        "Importance_Score": 0.0380,
+        "Description": "Average ambient temperature during the trading week"
+    },
+    {
+        "Feature": "Supply_Shock_Index",
+        "Importance_Score": 0.0270,
+        "Description": "Ratio of current arrivals to rolling 3-week average"
+    },
+    {
+        "Feature": "Price_Volatility_4",
+        "Importance_Score": 0.0210,
+        "Description": "4-week rolling price standard deviation"
+    },
+    {
+        "Feature": "Rainfall_MA_2",
+        "Importance_Score": 0.0150,
+        "Description": "2-week cumulative precipitation"
+    },
+    {
+        "Feature": "Crop_Wheat",
+        "Importance_Score": 0.0110,
+        "Description": "Wheat commodity indicator flag"
+    }
+]

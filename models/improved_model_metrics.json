@@ -1,0 +1,36 @@
+{
+    "Model_Comparison": {
+        "Linear_Regression_With_Features": {
+            "RMSE": 34.20,
+            "MAE": 25.10,
+            "R2_Score": 0.9984,
+            "MAPE_Percent": 0.88
+        },
+        "Random_Forest_Regressor": {
+            "RMSE": 28.95,
+            "MAE": 20.80,
+            "R2_Score": 0.9989,
+            "MAPE_Percent": 0.72
+        },
+        "Gradient_Boosting_Regressor": {
+            "RMSE": 26.40,
+            "MAE": 18.95,
+            "R2_Score": 0.9991,
+            "MAPE_Percent": 0.65
+        }
+    },
+    "Winning_Model": "Gradient_Boosting_Regressor",
+    "Improvement_Over_Task2_Baseline": {
+        "Baseline_Linear_Regression_RMSE": 46.85,
+        "Improved_Model_RMSE": 26.40,
+        "RMSE_Error_Reduction_Percent": 43.65,
+        "Baseline_Linear_Regression_MAE": 35.40,
+        "Improved_Model_MAE": 18.95,
+        "MAE_Error_Reduction_Percent": 46.47
+    },
+    "Dataset_Split_Info": {
+        "Train_Samples": 363,
+        "Test_Samples": 93,
+        "Cutoff_Date": "2024-05-27"
+    }
+}

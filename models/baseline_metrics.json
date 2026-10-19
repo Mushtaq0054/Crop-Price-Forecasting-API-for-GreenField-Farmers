@@ -1,40 +1,35 @@
 {
     "Naive_Persistence_Baseline": {
-        "RMSE": 56.12,
-        "MAE": 42.13,
-        "R2_Score": 0.9958,
-        "MAPE_Percent": 1.48
+        "RMSE": 91.73,
+        "MAE": 63.77,
+        "R2_Score": 0.9752,
+        "MAPE_Percent": 2.66
     },
     "Linear_Regression_Model": {
-        "RMSE": 46.85,
-        "MAE": 35.40,
-        "R2_Score": 0.9971,
-        "MAPE_Percent": 1.22
+        "RMSE": 92.9,
+        "MAE": 77.67,
+        "R2_Score": 0.9746,
+        "MAPE_Percent": 2.69
     },
     "Performance_Improvement": {
-        "RMSE_Reduction_Percent": 16.52,
-        "MAE_Reduction_Percent": 15.97
+        "RMSE_Reduction_Percent": -1.27,
+        "MAE_Reduction_Percent": -21.79
     },
     "Per_Crop_Breakdown_Linear_Regression": {
-        "Wheat": {
-            "RMSE": 35.21,
-            "MAE": 27.65,
-            "R2": 0.9892
-        },
-        "Rice": {
-            "RMSE": 44.18,
-            "MAE": 34.20,
-            "R2": 0.9854
-        },
         "Potato": {
-            "RMSE": 57.82,
-            "MAE": 44.35,
-            "R2": 0.9821
+            "RMSE": 109.32,
+            "MAE": 96.27,
+            "R2": 0.9306
+        },
+        "Wheat": {
+            "RMSE": 80.32,
+            "MAE": 65.46,
+            "R2": 0.905
         }
     },
     "Dataset_Split_Info": {
-        "Train_Samples": 375,
-        "Test_Samples": 93,
-        "Cutoff_Date": "2024-05-27"
+        "Train_Samples": 215,
+        "Test_Samples": 53,
+        "Cutoff_Date": "2024-05-20"
     }
 }
