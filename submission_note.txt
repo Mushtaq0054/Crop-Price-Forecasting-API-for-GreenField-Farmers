@@ -1,24 +1,23 @@
-SUBMISSION NOTE: Task 3 - Add Feature Engineering and Improve Model
+SUBMISSION NOTE: Task 4 - Build and Test FastAPI Service
 Client: GreenField Farmers Co-op
 Intern: Mushtaq Ahmad
 Repository: https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
 
 Summary of Work Completed:
-1. Engineered a comprehensive domain feature set in `src/feature_engineering.py`:
-   - Historical price lags (t-1, t-2, t-4 weeks) and arrival volume lags.
-   - Rolling moving averages (3-week and 6-week) and 4-week price volatility (rolling standard deviation).
-   - Supply shock index (ratio of current arrivals to 3-week rolling supply) and 1-week price momentum.
-   - Environmental indicators (2-week cumulative rainfall and seasonal temperature anomalies).
-   - Cyclical calendar encoding (sine/cosine of month) to capture harvest cycles without December/January discontinuities.
-2. Trained and benchmarked multiple regression candidates on the identical chronological test set in `src/train_improved_model.py`:
-   - Linear Regression with features: RMSE = 34.20 PKR (27.0% error reduction).
-   - Random Forest Regressor: RMSE = 28.95 PKR (38.2% error reduction).
-   - Gradient Boosting Regressor (Winning Model): RMSE = 26.40 PKR, MAE = 18.95 PKR, R2 = 0.9991 (43.65% RMSE reduction and 46.47% MAE reduction over the Task 2 baseline).
-3. Extracted feature importances from the ensemble model (`models/feature_importance.json`):
-   - Identified top drivers: `Price_MA_3` (38.2%), `Price_Lag_1` (24.5%), `Price_MA_6` (12.8%), `Market_Arrival_Tonnes` (8.1%), and `Month_Cos` (5.2%).
-4. Serialized the winning Gradient Boosting model pipeline to `models/improved_crop_model.joblib` and exported metrics to `models/improved_model_metrics.json`.
-5. Created an interactive Jupyter Notebook (`notebooks/03_feature_engineering_and_model_improvement.ipynb`) with visual before/after error comparisons and feature importance bar charts.
-6. Documented all engineered features, comparative metrics table, and importance findings in `README.md`.
+1. Developed a production-ready RESTful API service using FastAPI (`src/api.py` and `app.py`) to expose the trained Gradient Boosting crop price forecasting model.
+2. Built the `/predict` POST endpoint accepting crop type and date, returning predicted wholesale price (PKR/quintal) and a confidence interval in standard JSON format.
+3. Implemented robust input validation and sanitization using Pydantic schemas:
+   - Validates crop types against supported commodities (Wheat, Rice, Potato) with case-insensitive parsing.
+   - Enforces ISO-8601 YYYY-MM-DD date validation.
+   - Automatically populates missing weather and market arrivals using latest cached reference features.
+4. Added health monitoring endpoints (`GET /` and `GET /health`) verifying online status and model loading.
+5. Implemented a comprehensive automated test suite (`tests/test_api.py`) with 12 unit tests using `pytest` and `fastapi.testclient.TestClient`:
+   - Valid predictions for Wheat, Rice, and Potato.
+   - Case-insensitive crop input handling.
+   - Error rejection (HTTP 422) for unsupported crops (e.g., 'Mango').
+   - Error rejection (HTTP 422) for malformed dates (e.g., '25-10-2026', 'tomorrow').
+   - Error handling for missing required fields and empty payloads.
+6. Documented API endpoints, request/response examples, and testing commands in `README.md`.
 
 Why It Was Done This Way:
-Raw agricultural prices alone cannot account for delayed market responses or seasonal harvesting gluts. Engineering rolling moving averages smooths short-term fluctuations while lag features capture price inertia. Nonlinear tree-based models like Gradient Boosting capture complex interactions between rainfall anomalies, sudden supply arrivals, and commodity-specific demand far more effectively than linear models, cutting prediction error nearly in half.
+Wrapping machine learning models in a lightweight, asynchronous ASGI framework like FastAPI provides sub-millisecond response times, automated OpenAPI/Swagger documentation (`/docs`), and rigorous schema enforcement. Comprehensive unit testing for both valid and malformed payloads prevents runtime crashes in production and ensures GreenField Farmers Co-op receives dependable, contract-compliant predictions.

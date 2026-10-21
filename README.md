@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 [![Machine Learning](https://img.shields.io/badge/ML-Scikit--Learn-F7931E.svg)](https://scikit-learn.org/)
-[![Improved Model](https://img.shields.io/badge/Model-GradientBoosting-success.svg)](models/improved_crop_model.joblib)
+[![Tests](https://img.shields.io/badge/Tests-12%20Passed-brightgreen.svg)](tests/test_api.py)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -52,63 +52,75 @@ With accurate one-week price forecasts, farmers can schedule harvest sales strat
   - Serialized the baseline model to `models/baseline_linear_regression.joblib`.
 - [x] **Task 3: Feature Engineering and Model Improvement**
   - Engineered domain-specific features: price lags ($t-1, t-2, t-4$), rolling moving averages (3-week & 6-week), price volatility, supply shock index, and cyclical harvest seasonality.
-  - Trained and evaluated advanced models (Linear Regression with features, Random Forest, and Gradient Boosting Regressor).
-  - Reduced forecasting error significantly: **RMSE reduced by 43.65%** and **MAE reduced by 46.47%** over the Task 2 baseline.
-  - Extracted, analyzed, and visualized feature importance rankings.
+  - Benchmarked improved models: Gradient Boosting Regressor reduced RMSE by 43.65% over the baseline.
   - Serialized winning model to `models/improved_crop_model.joblib`.
-- [ ] **Task 4: Build and Test FastAPI Service**
-  - Wrap top model into FastAPI with a `/predict` endpoint.
-  - Automated unit test suite using `pytest` (valid and invalid inputs).
-  - Return clean JSON prediction responses.
+- [x] **Task 4: Build and Test FastAPI Service**
+  - Wrapped the trained Gradient Boosting model into a high-performance RESTful FastAPI service (`src/api.py`, `app.py`).
+  - Implemented `/predict` endpoint taking `crop` and `date` with strict Pydantic input validation.
+  - Authored a comprehensive automated test suite (`tests/test_api.py`) with 12 unit tests verifying valid predictions and error handling.
 - [ ] **Task 5: Deploy API and Write Handover Docs**
   - Cloud deployment to a free host (Render / Railway).
   - Client handover documentation, Model Card, and demonstration video.
 
 ---
 
-## 🔬 Task 3: Feature Engineering & Model Improvement
+## ⚡ Task 4: FastAPI Service & Automated Test Suite
 
-### 1. Engineered Feature Set (`src/feature_engineering.py`)
+### 1. API Endpoints
 
-| Feature Category | Feature Name | Description & Economic Rationale |
-| :--- | :--- | :--- |
-| **Price Lags** | `Price_Lag_1`, `Price_Lag_2`, `Price_Lag_4` | Prior weekly prices capturing short and medium-term price inertia. |
-| **Moving Averages** | `Price_MA_3`, `Price_MA_6` | 3-week and 6-week rolling price averages smoothing high-frequency noise. |
-| **Price Volatility** | `Price_Volatility_4` | 4-week rolling standard deviation capturing market risk and instability. |
-| **Price Momentum** | `Price_Momentum_1` | Weekly percentage rate of price change $\frac{P_t - P_{t-1}}{P_{t-1}}$. |
-| **Supply Pressure** | `Arrival_MA_3`, `Supply_Shock_Index` | Ratio of current market arrivals to 3-week rolling average supply. |
-| **Weather Shocks** | `Rainfall_MA_2`, `Temp_Anomaly` | 2-week cumulative rainfall and temperature deviations from seasonal mean. |
-| **Cyclical Seasonality** | `Month_Sin`, `Month_Cos` | Sine and cosine cyclical encoding of month of year to model harvest seasons. |
+| Method | Endpoint | Description | Sample Request | Expected Response |
+| :---: | :--- | :--- | :--- | :--- |
+| `GET` | `/` | API status, metadata & documentation link | None | `{"status": "online", "service": "..."}` |
+| `GET` | `/health` | Health check verifying model availability | None | `{"status": "healthy", "model_loaded": true}` |
+| `POST` | `/predict` | Predicts next-week crop price in PKR per quintal | `{"crop": "Wheat", "date": "2026-10-25"}` | `{"status": "success", "predicted_next_week_price_pkr": 3845.2, ...}` |
+| `GET` | `/docs` | Interactive Swagger UI documentation | Open in browser | Interactive API Explorer |
 
 ---
 
-### 2. Model Performance Comparison: Before vs. After Feature Engineering
+### 2. Request & Response Payload Examples
 
-All models were evaluated on the identical unseen holdout test set (93 records, late 2024):
+#### Sample POST `/predict` Request:
+```json
+{
+  "crop": "Wheat",
+  "date": "2026-10-25",
+  "current_price_pkr": 3820.0,
+  "market_arrival_tonnes": 420.0,
+  "rainfall_mm": 12.5,
+  "temperature_c": 26.0
+}
+```
+*(Note: `current_price_pkr`, `market_arrival_tonnes`, `rainfall_mm`, and `temperature_c` are optional. If omitted, the service automatically populates features using latest cached market state).*
 
-| Model Name | Feature Set | RMSE (PKR) | MAE (PKR) | $R^2$ Score | Error Reduction vs Baseline |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **Naive Persistence Baseline** | Raw Lags ($t$) | 56.12 | 42.13 | 0.9958 | Baseline Benchmark |
-| **Task 2 Linear Regression** | Raw Features | 46.85 | 35.40 | 0.9971 | -16.52% |
-| **Linear Regression (With Features)** | Engineered Features | 34.20 | 25.10 | 0.9984 | -27.00% |
-| **Random Forest Regressor** | Engineered Features | 28.95 | 20.80 | 0.9989 | -38.21% |
-| **Gradient Boosting Regressor** 🏆 | Engineered Features | **26.40** | **18.95** | **0.9991** | **-43.65% RMSE Reduction** |
-
-*The **Gradient Boosting Regressor** emerged as the winning model, cutting forecasting error by almost half compared to the initial baseline.*
+#### Sample Response (HTTP 200 OK):
+```json
+{
+  "status": "success",
+  "crop": "Wheat",
+  "target_date": "2026-10-25",
+  "predicted_next_week_price_pkr": 3845.2,
+  "confidence_interval_pkr": {
+    "lower_bound": 3826.25,
+    "upper_bound": 3864.15
+  },
+  "currency": "PKR per Quintal",
+  "model_version": "GradientBoostingRegressor_v1.0"
+}
+```
 
 ---
 
-### 3. Top Feature Importance Rankings (`models/feature_importance.json`)
+### 3. Automated Validation & Error Handling (Pytest)
 
-Analysis of feature contributions reveals the key drivers of wholesale crop prices:
-
-1. **`Price_MA_3` (38.20%)**: Short-term 3-week moving average is the single most predictive feature, anchoring price trajectory.
-2. **`Price_Lag_1` (24.50%)**: Immediate previous week price accounts for rapid weekly momentum.
-3. **`Price_MA_6` (12.80%)**: Medium-term price level filtering out temporary demand blips.
-4. **`Market_Arrival_Tonnes` (8.10%)**: Supply arrival volume directly influences mandi clearing prices.
-5. **`Month_Cos` (5.20%)**: Cyclical calendar encoding captures the seasonal post-harvest price dips.
-6. **`Temperature_C` (3.80%)**: Temperature shocks affecting perishable crop perishability (especially Potato).
-7. **`Supply_Shock_Index` (2.70%)**: Sudden supply surges causing temporary price contractions.
+The automated test suite in `tests/test_api.py` includes **12 automated test cases**:
+1. **Root Endpoint**: Verifies `GET /` returns HTTP 200 and correct service metadata.
+2. **Health Check**: Verifies `GET /health` confirms active model loading.
+3. **Valid Crop Predictions**: Confirms correct inference for all 3 staple crops (**Wheat**, **Rice**, **Potato**).
+4. **Case-Insensitive Input**: Confirms lowercase inputs (e.g., `"wheat"`, `"rice"`) are properly parsed.
+5. **Real-Time Context**: Validates prediction when client supplies dynamic weather and market arrivals.
+6. **Invalid Crop Handling**: Confirms submitting unsupported commodities (e.g., `"Mango"`) returns HTTP 422 with a descriptive error message.
+7. **Malformed Dates**: Confirms malformed date strings (e.g., `"25-10-2026"` or `"tomorrow"`) trigger HTTP 422 validation errors.
+8. **Missing Fields**: Confirms requests missing required fields (`crop` or `date`) are cleanly rejected without server crashes.
 
 ---
 
@@ -118,9 +130,10 @@ Analysis of feature contributions reveals the key drivers of wholesale crop pric
 Crop-Price-Forecasting-API-for-GreenField-Farmers/
 │
 ├── .gitignore               # Excludes virtual environments (crop/, venv/) and cache
-├── README.md                # Project documentation and Task 1/2/3 report
-├── requirements.txt         # Project dependencies
+├── README.md                # Project documentation and Task reports
+├── requirements.txt         # Project dependencies (includes fastapi, uvicorn, pytest, httpx)
 ├── submission_note.txt      # Formatted task submission note for mentor portal
+├── app.py                   # Root Uvicorn server entrypoint
 │
 ├── data/
 │   ├── raw/                 # Raw market arrivals and price records
@@ -138,7 +151,7 @@ Crop-Price-Forecasting-API-for-GreenField-Farmers/
 │
 ├── notebooks/
 │   ├── 01_data_cleaning_and_validation.ipynb  # Task 1 EDA and validation notebook
-│   └── 02_baseline_model_training.ipynb       # Task 2 baseline training & plots
+│   ├── 02_baseline_model_training.ipynb       # Task 2 baseline training & plots
 │   └── 03_feature_engineering_and_model_improvement.ipynb # Task 3 feature analysis
 │
 ├── src/
@@ -148,35 +161,29 @@ Crop-Price-Forecasting-API-for-GreenField-Farmers/
 │   ├── data_validator.py        # Automated data quality checks
 │   ├── train_baseline.py        # Task 2 baseline model training and evaluation script
 │   ├── feature_engineering.py   # Task 3 lag and rolling feature engineering pipeline
-│   └── train_improved_model.py  # Task 3 model training, comparison, and importance
+│   ├── train_improved_model.py  # Task 3 model training, comparison, and importance
+│   └── api.py                   # Task 4 production FastAPI service implementation
 │
-└── tests/                       # Automated API test suite (Task 4)
+└── tests/
+    └── test_api.py              # Task 4 automated unit test suite (12 tests)
 ```
 
 ---
 
-## ⚙️ Installation & How to Run
+## ⚙️ How to Run
 
-### 1. Setup Virtual Environment
+### 1. Run the FastAPI Server
+To start the live local API server:
 ```powershell
-crop\Scripts\activate
-pip install -r requirements.txt
+uvicorn app:app --reload
 ```
+*(Or run `python app.py`).*  
+Interactive Swagger API documentation will be available at: **http://127.0.0.1:8000/docs**
 
-### 2. Run Data Cleaning & Validation (Task 1)
-```bash
-python -m src.data_pipeline
-python -m src.data_validator
-```
-
-### 3. Run Baseline Model Training (Task 2)
-```bash
-python -m src.train_baseline
-```
-
-### 4. Run Feature Engineering & Model Improvement (Task 3)
-```bash
-python -m src.train_improved_model
+### 2. Run Automated Test Suite
+To execute all 12 automated unit and integration tests:
+```powershell
+pytest tests/test_api.py -v
 ```
 
 ---
