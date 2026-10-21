@@ -29,6 +29,12 @@ FEATURED_DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "crop_prices_fe
 
 SUPPORTED_CROPS = ["Wheat", "Rice", "Potato"]
 
+DEFAULT_BENCHMARKS = {
+    "Wheat": {"Modal_Price_PKR": 3800.0, "Market_Arrival_Tonnes": 400.0, "Rainfall_mm": 0.0, "Temperature_C": 22.0, "Price_Lag_1": 3760.0, "Price_Lag_2": 3720.0, "Price_Lag_4": 3650.0, "Price_MA_6": 3740.0, "Price_Volatility_4": 35.0},
+    "Rice": {"Modal_Price_PKR": 4350.0, "Market_Arrival_Tonnes": 460.0, "Rainfall_mm": 0.0, "Temperature_C": 22.0, "Price_Lag_1": 4300.0, "Price_Lag_2": 4250.0, "Price_Lag_4": 4180.0, "Price_MA_6": 4280.0, "Price_Volatility_4": 42.0},
+    "Potato": {"Modal_Price_PKR": 2250.0, "Market_Arrival_Tonnes": 580.0, "Rainfall_mm": 0.0, "Temperature_C": 22.0, "Price_Lag_1": 2200.0, "Price_Lag_2": 2150.0, "Price_Lag_4": 2080.0, "Price_MA_6": 2180.0, "Price_Volatility_4": 55.0}
+}
+
 # Global model and reference cache
 MODEL = None
 LATEST_CROP_STATE = {}
@@ -50,13 +56,30 @@ def load_model_and_reference_data():
 
     # 2. Load latest crop state for feature imputation
     if os.path.exists(FEATURED_DATA_PATH):
-        df_feat = pd.read_csv(FEATURED_DATA_PATH)
-        df_feat["Date"] = pd.to_datetime(df_feat["Date"])
+        try:
+            df_feat = pd.read_csv(FEATURED_DATA_PATH)
+            df_feat["Date"] = pd.to_datetime(df_feat["Date"])
+            df_feat["Crop_Clean"] = df_feat["Crop"].astype(str).str.strip().str.capitalize()
+            for crop in SUPPORTED_CROPS:
+                crop_df = df_feat[df_feat["Crop_Clean"] == crop].sort_values("Date")
+                if not crop_df.empty:
+                    LATEST_CROP_STATE[crop] = crop_df.iloc[-1].to_dict()
+                else:
+                    LATEST_CROP_STATE[crop] = DEFAULT_BENCHMARKS[crop].copy()
+        except Exception as e:
+            print(f"[API Warning] Failed reading featured CSV, using defaults: {e}")
+            for crop in SUPPORTED_CROPS:
+                LATEST_CROP_STATE[crop] = DEFAULT_BENCHMARKS[crop].copy()
+    else:
         for crop in SUPPORTED_CROPS:
-            crop_df = df_feat[df_feat["Crop"].str.lower() == crop.lower()].sort_values("Date")
-            if not crop_df.empty:
-                LATEST_CROP_STATE[crop] = crop_df.iloc[-1].to_dict()
-        print(f"[API] Cached reference features for crops: {list(LATEST_CROP_STATE.keys())}")
+            LATEST_CROP_STATE[crop] = DEFAULT_BENCHMARKS[crop].copy()
+
+    # Ensure all 3 supported crops have benchmark state
+    for crop in SUPPORTED_CROPS:
+        if crop not in LATEST_CROP_STATE:
+            LATEST_CROP_STATE[crop] = DEFAULT_BENCHMARKS[crop].copy()
+
+    print(f"[API] Cached reference features for crops: {list(LATEST_CROP_STATE.keys())}")
 
 
 @app.on_event("startup")
@@ -156,7 +179,7 @@ def predict_crop_price(request: PredictionRequest):
     month = target_date.month
 
     # Retrieve cached latest feature benchmarks for the selected crop
-    ref = LATEST_CROP_STATE.get(crop, {})
+    ref = LATEST_CROP_STATE.get(crop, DEFAULT_BENCHMARKS.get(crop, {}))
 
     # Base price values
     modal_price = request.current_price_pkr or float(ref.get("Modal_Price_PKR", 3000.0))
