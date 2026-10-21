@@ -13,7 +13,15 @@ import joblib
 import pandas as pd
 import numpy as np
 from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
+
+# Support both modern Pydantic v2 @field_validator and legacy @validator
+try:
+    from pydantic import field_validator
+    USE_FIELD_VALIDATOR = True
+except ImportError:
+    from pydantic import validator
+    USE_FIELD_VALIDATOR = False
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -157,24 +165,46 @@ class PredictionRequest(BaseModel):
     rainfall_mm: Optional[float] = Field(None, description="Optional weekly rainfall in mm")
     temperature_c: Optional[float] = Field(None, description="Optional ambient temperature in Celsius")
 
-    @validator("crop", pre=True, always=True)
-    def validate_crop_name(cls, v):
-        if not v or not isinstance(v, str):
-            raise ValueError("Crop name must be a non-empty string.")
-        formatted = v.strip().capitalize()
-        if formatted not in SUPPORTED_CROPS:
-            raise ValueError(f"Unsupported crop '{v}'. Supported crops are: {', '.join(SUPPORTED_CROPS)}")
-        return formatted
+    if USE_FIELD_VALIDATOR:
+        @field_validator("crop", mode="before")
+        @classmethod
+        def validate_crop_name(cls, v):
+            if not v or not isinstance(v, str):
+                raise ValueError("Crop name must be a non-empty string.")
+            formatted = v.strip().capitalize()
+            if formatted not in SUPPORTED_CROPS:
+                raise ValueError(f"Unsupported crop '{v}'. Supported crops are: {', '.join(SUPPORTED_CROPS)}")
+            return formatted
 
-    @validator("date", pre=True, always=True)
-    def validate_date_format(cls, v):
-        if not v or not isinstance(v, str):
-            raise ValueError("Date string must be provided in YYYY-MM-DD format.")
-        try:
-            parsed = datetime.strptime(v.strip(), "%Y-%m-%d")
-            return parsed.strftime("%Y-%m-%d")
-        except ValueError:
-            raise ValueError(f"Invalid date format '{v}'. Expected format: YYYY-MM-DD")
+        @field_validator("date", mode="before")
+        @classmethod
+        def validate_date_format(cls, v):
+            if not v or not isinstance(v, str):
+                raise ValueError("Date string must be provided in YYYY-MM-DD format.")
+            try:
+                parsed = datetime.strptime(v.strip(), "%Y-%m-%d")
+                return parsed.strftime("%Y-%m-%d")
+            except ValueError:
+                raise ValueError(f"Invalid date format '{v}'. Expected format: YYYY-MM-DD")
+    else:
+        @validator("crop", pre=True, always=True)
+        def validate_crop_name_legacy(cls, v):
+            if not v or not isinstance(v, str):
+                raise ValueError("Crop name must be a non-empty string.")
+            formatted = v.strip().capitalize()
+            if formatted not in SUPPORTED_CROPS:
+                raise ValueError(f"Unsupported crop '{v}'. Supported crops are: {', '.join(SUPPORTED_CROPS)}")
+            return formatted
+
+        @validator("date", pre=True, always=True)
+        def validate_date_format_legacy(cls, v):
+            if not v or not isinstance(v, str):
+                raise ValueError("Date string must be provided in YYYY-MM-DD format.")
+            try:
+                parsed = datetime.strptime(v.strip(), "%Y-%m-%d")
+                return parsed.strftime("%Y-%m-%d")
+            except ValueError:
+                raise ValueError(f"Invalid date format '{v}'. Expected format: YYYY-MM-DD")
 
 
 class ConfidenceRange(BaseModel):
