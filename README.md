@@ -3,7 +3,8 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 [![Machine Learning](https://img.shields.io/badge/ML-Scikit--Learn-F7931E.svg)](https://scikit-learn.org/)
-[![Tests](https://img.shields.io/badge/Tests-12%20Passed-brightgreen.svg)](tests/test_api.py)
+[![Tests](https://img.shields.io/badge/Tests-13%20Passed-brightgreen.svg)](tests/test_api.py)
+[![Deployment](https://img.shields.io/badge/Deploy-Render-46E3B7.svg)](https://render.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -15,89 +16,119 @@
 | **Project Title** | Crop Price Forecasting API for GreenField Farmers |
 | **Client** | GreenField Farmers Co-op |
 | **Intern** | Mushtaq Ahmad |
-| **Technology** | Machine Learning, Feature Engineering, FastAPI, Pytest |
+| **Technology Stack** | Python, Scikit-Learn, FastAPI, Pydantic v2, Pytest, Render |
 | **Level** | Intermediate |
-| **Repository** | [GitHub Repo](https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git) |
+| **Repository** | [GitHub Repository](https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git) |
+| **Live Deployed API** | [https://crop-price-forecasting-api.onrender.com](https://crop-price-forecasting-api.onrender.com) |
+| **Interactive Docs** | [https://crop-price-forecasting-api.onrender.com/docs](https://crop-price-forecasting-api.onrender.com/docs) |
 
 ---
 
 ## 🌾 Business Problem Statement
 
-**GreenField Farmers Co-op** sells staple agricultural produce to local and regional wholesale markets (mandis). Due to volatile weather disruptions (untimely rain, temperature shifts) and sudden market supply changes, the cooperative struggles to determine fair, profitable selling prices.
+**GreenField Farmers Co-op** sells staple agricultural produce (Wheat, Rice, and Potato) to wholesale agricultural markets (mandis). Due to volatile weather disruptions (unseasonal rain, temperature shifts) and sudden surges in market supply, the cooperative struggles to determine fair and profitable selling prices.
 
-Without forward-looking price visibility, farmers risk selling their harvest during sudden price crashes, leading to heavy financial losses.
+Selling produce blindly during sudden market gluts causes severe price depression and financial losses. Conversely, storing produce too long incurs warehousing expenses and spoilage risks.
 
 ### Objective:
-Build and deploy a machine learning-backed API that forecasts **next-week crop prices** for the cooperative's top three staple crops:
+Build and deploy a robust Machine Learning API that forecasts **next-week modal crop prices** (PKR per quintal) along with confidence intervals for the cooperative's top three staple crops:
 1. **Wheat**
 2. **Rice (Paddy)**
 3. **Potato**
 
-With accurate one-week price forecasts, farmers can schedule harvest sales strategically, minimize holding costs, and maximize collective profits.
+With these forward-looking predictions, the cooperative management can schedule sales strategically, negotiate fair pricing, and protect farmer livelihoods.
 
 ---
 
-## 🗺️ Project Roadmap & Milestones
+## 🗺️ Project Milestones & Completion Roadmap
 
 - [x] **Task 1: Prepare and Validate Crop Price Dataset**
-  - Ingested multi-year raw wholesale market price records.
-  - Built an automated data cleaning script (`src/data_pipeline.py`) handling missing values and standardizing dates.
-  - Implemented an automated data validation suite (`src/data_validator.py`) verifying 5 key data quality rules.
-  - Cleaned dataset committed at `data/processed/crop_prices_cleaned.csv`.
+  - Ingested multi-year historical wholesale price records and weather observations.
+  - Implemented automated data cleaning pipeline (`src/data_pipeline.py`) for missing value interpolation and ISO date standardization.
+  - Built an automated data quality test suite (`src/data_validator.py`) verifying 5 fundamental integrity constraints.
+  - Exported sanitized dataset to `data/processed/crop_prices_cleaned.csv`.
 - [x] **Task 2: Train and Evaluate Baseline Price Model**
-  - Created temporal next-week price target (`Target_Next_Week_Price`).
-  - Performed chronological 80/20 train/test split to prevent data leakage.
-  - Fitted a Scikit-Learn Linear Regression pipeline with one-hot encoding for crops.
+  - Formulated the next-week price target (`Target_Next_Week_Price`).
+  - Implemented chronological 80/20 train/test split to prevent temporal data leakage.
   - Benchmarked against a Naive Persistence Baseline ($\hat{y}_{t+1} = y_t$).
-  - Serialized the baseline model to `models/baseline_linear_regression.joblib`.
+  - Fitted a Scikit-Learn Linear Regression pipeline (Baseline RMSE: 46.85 PKR, MAE: 35.40 PKR).
+  - Serialized model to `models/baseline_linear_regression.joblib`.
 - [x] **Task 3: Feature Engineering and Model Improvement**
-  - Engineered domain-specific features: price lags ($t-1, t-2, t-4$), rolling moving averages (3-week & 6-week), price volatility, supply shock index, and cyclical harvest seasonality.
-  - Benchmarked improved models: Gradient Boosting Regressor reduced RMSE by 43.65% over the baseline.
-  - Serialized winning model to `models/improved_crop_model.joblib`.
+  - Engineered domain features: historical price lags ($t-1, t-2, t-4$), rolling moving averages (3-week and 6-week), 4-week price volatility, supply shock ratios, and cyclical harvest seasonality.
+  - Evaluated multiple candidate algorithms: Linear Regression, Random Forest, and Gradient Boosting.
+  - Selected **Gradient Boosting Regressor** as champion model (RMSE: 26.40 PKR, MAE: 18.95 PKR, $R^2$: 0.9991) — achieving a **43.65% RMSE reduction** over the baseline.
+  - Serialized winning pipeline to `models/improved_crop_model.joblib`.
 - [x] **Task 4: Build and Test FastAPI Service**
-  - Wrapped the trained Gradient Boosting model into a high-performance RESTful FastAPI service (`src/api.py`, `app.py`).
-  - Implemented `/predict` endpoint taking `crop` and `date` with strict Pydantic input validation.
-  - Authored a comprehensive automated test suite (`tests/test_api.py`) with 12 unit tests verifying valid predictions and error handling.
-- [ ] **Task 5: Deploy API and Write Handover Docs**
-  - Cloud deployment to a free host (Render / Railway).
-  - Client handover documentation, Model Card, and demonstration video.
+  - Encapsulated the production model inside a high-speed ASGI service (`src/api.py`, `app.py`).
+  - Built the `/predict` endpoint with Pydantic schema validation, case-insensitive crop parsing, and fallback reference caches.
+  - Created automated test suite (`tests/test_api.py`) with 13 comprehensive unit tests (all passing).
+- [x] **Task 5: Deploy API and Write Handover Docs**
+  - Configured cloud-native deployment manifests (`render.yaml`, `Procfile`).
+  - Deployed live REST API service to Render free hosting.
+  - Authored client handover documentation, API usage guides, and comprehensive Model Card.
 
 ---
 
-## ⚡ Task 4: FastAPI Service & Automated Test Suite
+## 🚀 Live API Endpoints
 
-### 1. API Endpoints
-
-| Method | Endpoint | Description | Sample Request | Expected Response |
+| Method | Endpoint | Description | Sample Request | Expected Output |
 | :---: | :--- | :--- | :--- | :--- |
-| `GET` | `/` | API status, metadata & documentation link | None | `{"status": "online", "service": "..."}` |
-| `GET` | `/health` | Health check verifying model availability | None | `{"status": "healthy", "model_loaded": true}` |
-| `POST` | `/predict` | Predicts next-week crop price in PKR per quintal | `{"crop": "Wheat", "date": "2026-10-25"}` | `{"status": "success", "predicted_next_week_price_pkr": 3845.2, ...}` |
-| `GET` | `/docs` | Interactive Swagger UI documentation | Open in browser | Interactive API Explorer |
+| `GET` | `/` | API status, metadata & documentation URL | None | Service info & health link |
+| `GET` | `/health` | Live probe checking model availability | None | `{"status": "healthy", "model_loaded": true}` |
+| `POST` | `/predict` | Predicts next-week modal price in PKR/quintal | `{"crop": "Wheat", "date": "2026-10-25"}` | Predicted price & confidence interval |
+| `GET` | `/docs` | Interactive Swagger UI API explorer | Open browser | Visual API testing interface |
+| `GET` | `/redoc` | ReDoc OpenAPI documentation | Open browser | Clean API specifications |
 
 ---
 
-### 2. Request & Response Payload Examples
+## 💻 API Usage Examples
 
-#### Sample POST `/predict` Request:
-```json
-{
-  "crop": "Wheat",
-  "date": "2026-10-25",
-  "current_price_pkr": 3820.0,
-  "market_arrival_tonnes": 420.0,
-  "rainfall_mm": 12.5,
-  "temperature_c": 26.0
-}
+### 1. Interactive Swagger UI (Recommended for Demo)
+Open **`https://crop-price-forecasting-api.onrender.com/docs`** (or `http://localhost:8000/docs` locally):
+1. Click on `POST /predict`.
+2. Click **"Try it out"**.
+3. Enter the request payload and click **"Execute"**.
+
+### 2. cURL Example
+```bash
+curl -X POST "https://crop-price-forecasting-api.onrender.com/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "crop": "Wheat",
+    "date": "2026-10-28",
+    "current_price_pkr": 3820.0,
+    "market_arrival_tonnes": 420.0,
+    "rainfall_mm": 10.0,
+    "temperature_c": 25.5
+  }'
 ```
-*(Note: `current_price_pkr`, `market_arrival_tonnes`, `rainfall_mm`, and `temperature_c` are optional. If omitted, the service automatically populates features using latest cached market state).*
 
-#### Sample Response (HTTP 200 OK):
+*(Note: `current_price_pkr`, `market_arrival_tonnes`, `rainfall_mm`, and `temperature_c` are optional. If omitted, the API automatically infers reference values from historical crop trends).*
+
+### 3. Python `requests` Example
+```python
+import requests
+
+api_url = "https://crop-price-forecasting-api.onrender.com/predict"
+payload = {
+    "crop": "Rice",
+    "date": "2026-11-05"
+}
+
+response = requests.post(api_url, json=payload)
+data = response.json()
+
+print(f"Crop: {data['crop']}")
+print(f"Predicted Price: {data['predicted_next_week_price_pkr']} {data['currency']}")
+print(f"Confidence Bounds: {data['confidence_interval_pkr']['lower_bound']} - {data['confidence_interval_pkr']['upper_bound']}")
+```
+
+### 4. Sample JSON Response (HTTP 200 OK)
 ```json
 {
   "status": "success",
   "crop": "Wheat",
-  "target_date": "2026-10-25",
+  "target_date": "2026-10-28",
   "predicted_next_week_price_pkr": 3845.2,
   "confidence_interval_pkr": {
     "lower_bound": 3826.25,
@@ -110,81 +141,163 @@ With accurate one-week price forecasts, farmers can schedule harvest sales strat
 
 ---
 
-### 3. Automated Validation & Error Handling (Pytest)
+## 📋 Model Card
 
-The automated test suite in `tests/test_api.py` includes **12 automated test cases**:
-1. **Root Endpoint**: Verifies `GET /` returns HTTP 200 and correct service metadata.
-2. **Health Check**: Verifies `GET /health` confirms active model loading.
-3. **Valid Crop Predictions**: Confirms correct inference for all 3 staple crops (**Wheat**, **Rice**, **Potato**).
-4. **Case-Insensitive Input**: Confirms lowercase inputs (e.g., `"wheat"`, `"rice"`) are properly parsed.
-5. **Real-Time Context**: Validates prediction when client supplies dynamic weather and market arrivals.
-6. **Invalid Crop Handling**: Confirms submitting unsupported commodities (e.g., `"Mango"`) returns HTTP 422 with a descriptive error message.
-7. **Malformed Dates**: Confirms malformed date strings (e.g., `"25-10-2026"` or `"tomorrow"`) trigger HTTP 422 validation errors.
-8. **Missing Fields**: Confirms requests missing required fields (`crop` or `date`) are cleanly rejected without server crashes.
+### 1. Model Details
+* **Model Name:** GreenField Crop Price Forecaster
+* **Model Architecture:** Gradient Boosting Regressor (`scikit-learn.ensemble.GradientBoostingRegressor`)
+* **Pipeline Structure:** `ColumnTransformer` (One-Hot Encoding for categorical crop identifier + StandardScaler for numerical features) followed by an ensemble of 150 regression estimators.
+* **Target Variable:** `Target_Next_Week_Price` (Wholesale Modal Price 7 days ahead in Pakistani Rupees [PKR] per quintal).
+* **Release Date:** October 2026
+* **Developer:** Mushtaq Ahmad (Machine Learning Intern, Ezitech Software House)
+
+### 2. Intended Use
+* **Primary Intended Use:** Provide weekly market price advisories and forecast intervals for cooperative leadership and smallholder member farmers to plan harvesting, storage, and wholesale market sales.
+* **Intended Users:** GreenField Farmers Co-op market managers, pricing analysts, and agricultural extension field agents.
+* **Out-of-Scope Uses:** Speculative financial commodity day-trading, non-agricultural commodities, or forecasting retail consumer prices.
+
+### 3. Factors & Input Features
+* **Commodity Types:** Wheat, Rice (Paddy), Potato.
+* **Temporal Indicators:** Weekly calendar cycle, harvest month seasonality (sinusoidal and cosinusoidal transforms).
+* **Price Momentum:** Lagged prices ($t-1, t-2, t-4$ weeks), 3-week and 6-week rolling moving averages, 4-week historical volatility.
+* **Supply & Weather Drivers:** Weekly mandi market arrival tonnage, supply shock ratio (current arrival vs. 4-week average), cumulative rainfall (mm), and average ambient temperature (°C).
+
+### 4. Benchmark Evaluation & Performance Metrics
+Models were evaluated on unseen chronological test partitions (strictly forward in time to avoid data leakage):
+
+| Model Architecture | RMSE (PKR/quintal) | MAE (PKR/quintal) | $R^2$ Score | Relative Error Reduction |
+| :--- | :---: | :---: | :---: | :---: |
+| Naive Persistence Baseline | 56.12 | 42.13 | 0.9950 | Reference Benchmark |
+| Linear Regression Baseline (Task 2) | 46.85 | 35.40 | 0.9971 | 16.51% over persistence |
+| Random Forest Regressor | 34.20 | 24.15 | 0.9984 | 26.99% over Task 2 |
+| **Gradient Boosting Regressor (Champion)** | **26.40** | **18.95** | **0.9991** | **43.65% over Task 2 Baseline** |
+
+### 5. Assumptions & Limitations
+* **Continuity Assumption:** The model assumes typical continuous market dynamics without sudden nationwide export/import embargoes, drastic currency devaluation shocks, or unannounced statutory price caps.
+* **Regional Calibration:** Models are calibrated on regional wholesale mandi dynamics; price variances may occur if produce is sold in distant metropolitan terminal markets without transport cost adjustment.
+* **Extreme Weather Events:** Catastrophic floodings or severe droughts exceeding 100-year historical return periods may deviate actual spot prices beyond standard model confidence intervals.
+
+### 6. Ethical Considerations & Safeguards
+* **Farmer Protection:** Predictions provide a symmetric confidence interval (±1.0 MAE) to avoid false precision and prevent premature distress selling.
+* **Explainability:** Feature importance analysis is publicly documented to ensure cooperative members understand why price movements are projected.
 
 ---
 
-## 📂 Project Structure
+## 🛠️ Local Setup & Execution Instructions
+
+### Prerequisites
+* Python 3.10 to 3.12 installed.
+* Git installed.
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
+cd Crop-Price-Forecasting-API-for-GreenField-Farmers
+```
+
+### 2. Create and Activate Virtual Environment
+```bash
+# Windows
+python -m venv crop
+.\crop\Scripts\activate
+
+# macOS / Linux
+python3 -m venv crop
+source crop/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run the API Locally
+```bash
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+Open **`http://127.0.0.1:8000/docs`** to access the interactive Swagger UI.
+
+### 5. Run Automated Tests
+```bash
+pytest tests/test_api.py -v
+```
+All 13 unit tests will execute and confirm schema enforcement, calculation accuracy, and error handling.
+
+---
+
+## ☁️ Deployment Guide (Render / Railway)
+
+This repository includes native cloud deployment blueprints (`render.yaml` and `Procfile`).
+
+### Deploying to Render in 4 Simple Steps:
+1. **Push to GitHub:** Ensure your latest commits are pushed to your GitHub repository.
+2. **Log in to Render:** Go to [render.com](https://render.com) and click **"New" > "Web Service"**.
+3. **Connect Repository:** Link your `Crop-Price-Forecasting-API-for-GreenField-Farmers` repository.
+4. **Deploy with Blueprint or Manual Settings:**
+   - **Environment:** `Python`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn app:app --host 0.0.0.0 --port $PORT`
+   - **Plan:** Free
+5. Click **"Deploy Web Service"**. Once deployed, Render will provide your public URL (e.g., `https://crop-price-forecasting-api.onrender.com`).
+
+---
+
+## 📂 Project Repository Structure
 
 ```plaintext
 Crop-Price-Forecasting-API-for-GreenField-Farmers/
 │
-├── .gitignore               # Excludes virtual environments (crop/, venv/) and cache
-├── README.md                # Project documentation and Task reports
-├── requirements.txt         # Project dependencies (includes fastapi, uvicorn, pytest, httpx)
-├── submission_note.txt      # Formatted task submission note for mentor portal
-├── app.py                   # Root Uvicorn server entrypoint
+├── .gitignore               # Ignores virtual environments (crop/, venv/) and cache files
+├── README.md                # Comprehensive documentation, setup guide, and Model Card
+├── requirements.txt         # Project runtime dependencies
+├── Procfile                 # Cloud web dyno process declaration
+├── render.yaml              # Render Infrastructure-as-Code deployment blueprint
+├── submission_note.txt      # Formatted task submission notes for portal review
+├── app.py                   # Root application entrypoint for Uvicorn
 │
 ├── data/
-│   ├── raw/                 # Raw market arrivals and price records
+│   ├── raw/                 # Raw multi-year crop price & arrival records
 │   │   └── crop_prices_raw.csv
 │   └── processed/           # Cleaned and feature-engineered datasets
 │       ├── crop_prices_cleaned.csv
 │       └── crop_prices_featured.csv
 │
-├── models/                  # Serialized models and evaluation reports
+├── models/                  # Serialized ML models and metric reports
 │   ├── baseline_linear_regression.joblib  # Task 2 baseline model
-│   ├── baseline_metrics.json              # Task 2 metrics
-│   ├── improved_crop_model.joblib         # Task 3 winning Gradient Boosting model
-│   ├── improved_model_metrics.json        # Task 3 model comparison report
-│   └── feature_importance.json            # Task 3 feature importance report
+│   ├── baseline_metrics.json              # Task 2 baseline metrics
+│   ├── improved_crop_model.joblib         # Task 3 champion Gradient Boosting pipeline
+│   ├── improved_model_metrics.json        # Task 3 comparative benchmarks
+│   └── feature_importance.json            # Task 3 feature importance ranking
 │
 ├── notebooks/
 │   ├── 01_data_cleaning_and_validation.ipynb  # Task 1 EDA and validation notebook
 │   ├── 02_baseline_model_training.ipynb       # Task 2 baseline training & plots
-│   └── 03_feature_engineering_and_model_improvement.ipynb # Task 3 feature analysis
+│   └── 03_feature_engineering_and_model_improvement.ipynb # Task 3 feature engineering
 │
 ├── src/
 │   ├── __init__.py
-│   ├── download_dataset.py      # Benchmark raw dataset generator/fetcher
-│   ├── data_pipeline.py         # Automated data cleaning and date standardization
-│   ├── data_validator.py        # Automated data quality checks
-│   ├── train_baseline.py        # Task 2 baseline model training and evaluation script
-│   ├── feature_engineering.py   # Task 3 lag and rolling feature engineering pipeline
-│   ├── train_improved_model.py  # Task 3 model training, comparison, and importance
-│   └── api.py                   # Task 4 production FastAPI service implementation
+│   ├── download_dataset.py      # Synthetic raw dataset generator/fetcher
+│   ├── data_pipeline.py         # Automated cleaning and date standardization
+│   ├── data_validator.py        # Automated quality validation checks
+│   ├── train_baseline.py        # Task 2 baseline training pipeline
+│   ├── feature_engineering.py   # Task 3 lag and rolling feature generator
+│   ├── train_improved_model.py  # Task 3 model comparison and serialization
+│   └── api.py                   # Production FastAPI service with robust schemas
 │
 └── tests/
-    └── test_api.py              # Task 4 automated unit test suite (12 tests)
+    └── test_api.py              # Automated Pytest suite (13 test cases)
 ```
 
 ---
 
-## ⚙️ How to Run
+## 🎥 Client Handover Demo Video Guide
 
-### 1. Run the FastAPI Server
-To start the live local API server:
-```powershell
-uvicorn app:app --reload
-```
-*(Or run `python app.py`).*  
-Interactive Swagger API documentation will be available at: **http://127.0.0.1:8000/docs**
-
-### 2. Run Automated Test Suite
-To execute all 12 automated unit and integration tests:
-```powershell
-pytest tests/test_api.py -v
-```
+To demonstrate the working solution to GreenField Farmers Co-op:
+1. Start your local or deployed API service.
+2. Open the Swagger UI at `/docs`.
+3. Demonstrate a successful prediction for **Wheat**, **Rice**, and **Potato**.
+4. Show how the API responds with confidence bounds and handles invalid input (e.g., unsupported crop or malformed date).
+5. Highlight how this provides actionable price visibility for the next selling week.
 
 ---
 
@@ -192,4 +305,5 @@ pytest tests/test_api.py -v
 
 * **Author:** Mushtaq Ahmad
 * **Program:** Machine Learning Internship Program, Ezitech Software House
-* **Client Representative:** GreenField Farmers Co-op
+* **Client Partner:** GreenField Farmers Co-op
+* **License:** MIT License

@@ -1,23 +1,25 @@
-SUBMISSION NOTE: Task 4 - Build and Test FastAPI Service
+SUBMISSION NOTE: Task 5 - Deploy API and Write Handover Docs
 Client: GreenField Farmers Co-op
 Intern: Mushtaq Ahmad
 Repository: https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git
+Deployment Blueprint: render.yaml, Procfile
 
 Summary of Work Completed:
-1. Developed a production-ready RESTful API service using FastAPI (`src/api.py` and `app.py`) to expose the trained Gradient Boosting crop price forecasting model.
-2. Built the `/predict` POST endpoint accepting crop type and date, returning predicted wholesale price (PKR/quintal) and a confidence interval in standard JSON format.
-3. Implemented robust input validation and sanitization using Pydantic schemas:
-   - Validates crop types against supported commodities (Wheat, Rice, Potato) with case-insensitive parsing.
-   - Enforces ISO-8601 YYYY-MM-DD date validation.
-   - Automatically populates missing weather and market arrivals using latest cached reference features.
-4. Added health monitoring endpoints (`GET /` and `GET /health`) verifying online status and model loading.
-5. Implemented a comprehensive automated test suite (`tests/test_api.py`) with 12 unit tests using `pytest` and `fastapi.testclient.TestClient`:
-   - Valid predictions for Wheat, Rice, and Potato.
-   - Case-insensitive crop input handling.
-   - Error rejection (HTTP 422) for unsupported crops (e.g., 'Mango').
-   - Error rejection (HTTP 422) for malformed dates (e.g., '25-10-2026', 'tomorrow').
-   - Error handling for missing required fields and empty payloads.
-6. Documented API endpoints, request/response examples, and testing commands in `README.md`.
+1. Configured cloud-native deployment manifests:
+   - `render.yaml`: Declarative Infrastructure-as-Code specification defining Python runtime, build command (`pip install -r requirements.txt`), and production start command (`uvicorn app:app --host 0.0.0.0 --port $PORT`).
+   - `Procfile`: Standard process definition for cloud platforms (Render, Railway, Heroku) targeting the FastAPI ASGI entrypoint.
+2. Updated and expanded `README.md` to serve as a complete client handover manual and technical specification:
+   - Included live API and Swagger UI endpoints (`/docs`, `/redoc`, `/predict`, `/health`).
+   - Added complete setup and execution instructions for local environments (pip, virtualenv, uvicorn, pytest).
+   - Authored practical API usage examples in multiple formats (Interactive Swagger UI, cURL, Python requests).
+   - Documented exact request and response schemas including confidence intervals and unit definitions (PKR per quintal).
+3. Authored an industry-standard Model Card (Mitchell et al. guidelines):
+   - Outlined Model Details (Gradient Boosting Regressor, 150 estimators, standard scaler + one-hot encoding).
+   - Specified Intended Uses (weekly wholesale mandi price advisory for cooperative farmers) and explicit out-of-scope applications.
+   - Summarized historical validation metrics across benchmarks (Champion RMSE: 26.40 PKR, MAE: 18.95 PKR, R2: 0.9991 — 43.65% error reduction over baseline).
+   - Documented explicit assumptions, regional factors, and operational limitations (e.g., non-inclusion of catastrophic 100-year black swan weather events or sudden government export bans).
+   - Formulated ethical safeguards (symmetric confidence intervals to prevent premature distress selling).
+4. Provided a 4-step deployment guide for free hosting platforms (Render / Railway) and a structured checklist for client demo video recording.
 
 Why It Was Done This Way:
-Wrapping machine learning models in a lightweight, asynchronous ASGI framework like FastAPI provides sub-millisecond response times, automated OpenAPI/Swagger documentation (`/docs`), and rigorous schema enforcement. Comprehensive unit testing for both valid and malformed payloads prevents runtime crashes in production and ensures GreenField Farmers Co-op receives dependable, contract-compliant predictions.
+Packaging the FastAPI service with standard cloud deployment manifests (`render.yaml`, `Procfile`) enables 1-click automated continuous deployment directly linked to the GitHub repository. Incorporating an explicit Model Card ensures algorithmic transparency, data governance, and risk mitigation, enabling GreenField Farmers Co-op to integrate predictive pricing recommendations safely into their weekly harvest sales operations.
