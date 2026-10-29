@@ -64,11 +64,11 @@ const CONFIG = {
     if (saved && saved !== this.SERVERS.AUTO) {
       return saved.replace(/\/+$/, "");
     }
-    // If running served by FastAPI directly (e.g. at localhost:8000/dashboard)
-    if (window.location.protocol.startsWith("http") && window.location.port === "8000") {
-      return "";
+    // If running in browser over http or https (on Render or local FastAPI server)
+    if (window.location.protocol.startsWith("http")) {
+      return window.location.origin;
     }
-    // Default fallback to local server or render
+    // Default fallback when opened as local file (file:///)
     return this.SERVERS.LOCAL;
   },
 

@@ -12,7 +12,8 @@ from contextlib import asynccontextmanager
 import joblib
 import pandas as pd
 import numpy as np
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -165,7 +166,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount interactive Frontend Dashboard
+# Mount static asset directories so dashboard loads cleanly at root URL
+css_dir = os.path.join(FRONTEND_DIR, "css")
+js_dir = os.path.join(FRONTEND_DIR, "js")
+if os.path.isdir(css_dir):
+    app.mount("/css", StaticFiles(directory=css_dir), name="css")
+if os.path.isdir(js_dir):
+    app.mount("/js", StaticFiles(directory=js_dir), name="js")
 if os.path.isdir(FRONTEND_DIR):
     app.mount("/dashboard", StaticFiles(directory=FRONTEND_DIR, html=True), name="dashboard")
 
@@ -242,15 +249,25 @@ class PredictionResponse(BaseModel):
 # API ENDPOINTS
 # -------------------------------------------------------------
 @app.get("/", tags=["Health"])
-def root():
-    """Root endpoint welcoming the client and confirming API status."""
+def root(request: Optional[Request] = None):
+    """
+    Root endpoint:
+    - If accessed by a browser (Accept: text/html), serves the interactive Frontend Dashboard directly.
+    - If accessed by an API client / test runner, returns JSON status metadata.
+    """
+    index_file = os.path.join(FRONTEND_DIR, "index.html")
+    if request is not None:
+        accept_header = request.headers.get("accept", "")
+        if "text/html" in accept_header and os.path.exists(index_file):
+            return FileResponse(index_file)
+
     return {
         "status": "online",
         "service": "GreenField Farmers Co-op Crop Price Forecasting API",
         "version": "1.0.0",
         "supported_crops": SUPPORTED_CROPS,
         "docs_url": "/docs",
-        "dashboard_url": "/dashboard"
+        "dashboard_url": "/"
     }
 
 
