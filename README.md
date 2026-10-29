@@ -20,6 +20,7 @@
 | **Level** | Intermediate |
 | **Repository** | [GitHub Repository](https://github.com/Mushtaq0054/Crop-Price-Forecasting-API-for-GreenField-Farmers.git) |
 | **Live Deployed API** | [https://crop-price-forecasting-api.onrender.com](https://crop-price-forecasting-api.onrender.com) |
+| **Interactive Dashboard** | [https://crop-price-forecasting-api.onrender.com/dashboard](https://crop-price-forecasting-api.onrender.com/dashboard) |
 | **Interactive Docs** | [https://crop-price-forecasting-api.onrender.com/docs](https://crop-price-forecasting-api.onrender.com/docs) |
 
 ---

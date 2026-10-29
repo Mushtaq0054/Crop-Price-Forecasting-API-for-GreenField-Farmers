@@ -13,6 +13,8 @@ import joblib
 import pandas as pd
 import numpy as np
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # Support both modern Pydantic v2 @field_validator and legacy @validator
@@ -28,6 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, "models", "improved_crop_model.joblib")
 FALLBACK_MODEL_PATH = os.path.join(BASE_DIR, "models", "baseline_linear_regression.joblib")
 FEATURED_DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "crop_prices_featured.csv")
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 SUPPORTED_CROPS = ["Wheat", "Rice", "Potato"]
 
@@ -153,6 +156,19 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Enable Cross-Origin Resource Sharing (CORS) for frontend clients
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount interactive Frontend Dashboard
+if os.path.isdir(FRONTEND_DIR):
+    app.mount("/dashboard", StaticFiles(directory=FRONTEND_DIR, html=True), name="dashboard")
+
 
 # -------------------------------------------------------------
 # PYDANTIC SCHEMAS
@@ -233,7 +249,8 @@ def root():
         "service": "GreenField Farmers Co-op Crop Price Forecasting API",
         "version": "1.0.0",
         "supported_crops": SUPPORTED_CROPS,
-        "docs_url": "/docs"
+        "docs_url": "/docs",
+        "dashboard_url": "/dashboard"
     }
 
 

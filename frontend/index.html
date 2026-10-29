@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenField Farmers Co-op | Crop Price Forecasting Intelligence</title>
+  
+  <!-- Favicon Emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌾</text></svg>">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Top App Navigation Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-wrapper">
+        <div class="brand-logo">🌾</div>
+        <div class="brand-titles">
+          <h1>GreenField Farmers Co-op</h1>
+          <p>Machine Learning Crop Price Forecasting System</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Server Switcher -->
+        <div class="endpoint-config-bar">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">API Server:</span>
+          <select id="serverEndpointSelect" class="endpoint-select" title="Choose API Server Target">
+            <option value="http://127.0.0.1:8000">Localhost (http://127.0.0.1:8000)</option>
+            <option value="https://crop-price-forecasting-api.onrender.com">Render Cloud (Live)</option>
+            <option value="AUTO">Auto Detect (Relative /dashboard)</option>
+          </select>
+        </div>
+
+        <!-- Connection Status Pill -->
+        <div id="connectionStatusPill" class="badge badge-info" style="display: flex; align-items: center; gap: 6px;">
+          <span id="connectionStatusDot" class="status-dot"></span>
+          <span id="connectionStatusText">Checking API...</span>
+        </div>
+
+        <!-- Model Card Modal Trigger -->
+        <button id="openModelCardBtn" class="btn btn-sm btn-outline" title="View Model Card & Transparency Docs">
+          📋 Model Card
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h2>Intelligent Harvest Price Advisory</h2>
+        <p>
+          Empowering cooperative farmers with machine learning forecasts for next-week mandi prices. Plan harvest sales strategically, avoid sudden price gluts, and capture wholesale market premiums.
+        </p>
+      </div>
+      <div>
+        <span class="badge badge-success" style="font-size: 0.85rem; padding: 6px 14px;">
+          ✓ Gradient Boosting Champion (R²: 0.9991 • -43.65% RMSE)
+        </span>
+      </div>
+    </section>
+
+    <!-- Benchmark Ticker Strip -->
+    <section id="benchmarkStripContainer" class="benchmark-strip">
+      <!-- Injected by JavaScript -->
+    </section>
+
+    <!-- Main 2-Column Grid -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN: Forecast Controls -->
+      <section class="control-panel">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-title-icon">⚙️</span>
+              Forecast Parameters
+            </h2>
+            <button id="resetDefaultsBtn" class="btn btn-sm btn-secondary" title="Reset to cooperative benchmarks">
+              ↻ Reset Defaults
+            </button>
+          </div>
+
+          <form id="forecastForm">
+
+            <!-- Step 1: Crop Selection Cards -->
+            <div class="form-group">
+              <label class="form-label">
+                <span>1. Select Staple Crop</span>
+                <span class="label-hint">Top 3 Commodities</span>
+              </label>
+
+              <div class="crop-selector-grid">
+                <!-- Wheat -->
+                <label class="crop-card-option active" data-crop="Wheat">
+                  <input type="radio" name="crop" value="Wheat" checked>
+                  <span class="crop-icon">🌾</span>
+                  <div class="crop-name">Wheat</div>
+                  <div class="crop-variety">Lok-1 / Shalimar</div>
+                </label>
+
+                <!-- Rice -->
+                <label class="crop-card-option" data-crop="Rice">
+                  <input type="radio" name="crop" value="Rice">
+                  <span class="crop-icon">🍚</span>
+                  <div class="crop-name">Rice</div>
+                  <div class="crop-variety">Super Basmati</div>
+                </label>
+
+                <!-- Potato -->
+                <label class="crop-card-option" data-crop="Potato">
+                  <input type="radio" name="crop" value="Potato">
+                  <span class="crop-icon">🥔</span>
+                  <div class="crop-name">Potato</div>
+                  <div class="crop-variety">Santa / Cardinal</div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Step 2: Target Date -->
+            <div class="form-group">
+              <label for="forecastDate" class="form-label">
+                <span>2. Forecast Target Date</span>
+                <span class="label-hint">ISO (YYYY-MM-DD)</span>
+              </label>
+              <input type="date" id="forecastDate" class="form-control" required>
+
+              <div class="quick-date-row">
+                <button type="button" class="chip-btn quick-date-chip active" data-days="7">+7 Days (Next Week)</button>
+                <button type="button" class="chip-btn quick-date-chip" data-days="14">+14 Days</button>
+                <button type="button" class="chip-btn quick-date-chip" data-days="30">+30 Days</button>
+              </div>
+            </div>
+
+            <!-- Step 3: Collapsible Advanced Market Context -->
+            <div id="advancedContextAccordion" class="accordion">
+              <div id="accordionToggleHeader" class="accordion-header">
+                <span>📊 Real-Time Market & Weather Context (Optional)</span>
+                <span class="accordion-icon">▼</span>
+              </div>
+              <div class="accordion-content">
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+                  Leave blank to auto-use latest cooperative benchmarks and cached mandi observations.
+                </p>
+
+                <div class="form-group">
+                  <label for="currentPriceInput" class="form-label">
+                    <span>Current Mandi Spot Price</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="number" id="currentPriceInput" class="form-control" step="0.5" placeholder="e.g. 3800">
+                    <span class="input-suffix">PKR/quintal</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="arrivalInput" class="form-label">
+                    <span>Weekly Market Arrival</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="number" id="arrivalInput" class="form-control" step="1" placeholder="e.g. 410">
+                    <span class="input-suffix">Tonnes</span>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+                  <div class="form-group">
+                    <label for="temperatureInput" class="form-label">
+                      <span>Temperature</span>
+                    </label>
+                    <div class="input-group">
+                      <input type="number" id="temperatureInput" class="form-control" step="0.1" placeholder="22.0">
+                      <span class="input-suffix">°C</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="rainfallInput" class="form-label">
+                      <span>Rainfall</span>
+                    </label>
+                    <div class="input-group">
+                      <input type="number" id="rainfallInput" class="form-control" step="0.5" placeholder="0.0">
+                      <span class="input-suffix">mm</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button type="submit" id="submitForecastBtn" class="btn btn-primary btn-block" style="padding: 14px; font-size: 1rem;">
+              <span id="submitBtnSpinner" class="spinner" style="display: none;"></span>
+              <span id="submitBtnText">Generate Next-Week Forecast</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Dynamic Forecast Visuals & Analytics -->
+      <section class="analytics-panel">
+
+        <!-- Initial Placeholder State -->
+        <div id="forecastEmptyState" class="card empty-forecast-state">
+          <div class="empty-forecast-icon">🌱</div>
+          <h3>Ready for Crop Price Intelligence</h3>
+          <p style="font-size: 0.9rem; max-width: 480px; margin: 0 auto 16px auto;">
+            Select a crop and forecast date on the left to compute next-week wholesale modal prices and view cooperative sales advisory.
+          </p>
+          <span class="badge badge-info">Waiting for your query</span>
+        </div>
+
+        <!-- Active Forecast Result Section (Hidden until prediction runs) -->
+        <div id="forecastResultSection" style="display: none;">
+
+          <!-- Hero Price Card -->
+          <div class="forecast-hero-card">
+            <div class="forecast-status-header">
+              <div class="forecast-crop-title">
+                <span id="resultCropIcon" style="font-size: 1.8rem;">🌾</span>
+                <span id="resultCropName">Wheat</span>
+                <span class="badge badge-success" style="font-size: 0.72rem;">Model: GBR v1.0</span>
+              </div>
+              <div id="priceDeltaBadge" class="badge badge-success">
+                ▲ +1.2% Projected
+              </div>
+            </div>
+
+            <div class="forecast-price-display">
+              <div class="price-meta-label">Projected Next-Week Wholesale Modal Price</div>
+              <div class="price-figure-row">
+                <span style="font-size: 1.8rem; font-weight: 700; color: var(--color-primary-dark);">PKR</span>
+                <span id="predictedPriceValue" class="predicted-price-value">3,845.2</span>
+                <span class="predicted-price-unit">/ quintal</span>
+              </div>
+            </div>
+
+            <!-- Confidence Interval Breakdown -->
+            <div class="confidence-box">
+              <div class="confidence-col">
+                <span class="confidence-col-label">Lower Confidence Bound</span>
+                <span id="lowerBoundValue" class="confidence-col-value" style="color: var(--color-danger);">PKR 3,826.3</span>
+              </div>
+              <div class="confidence-col">
+                <span class="confidence-col-label">Confidence Interval Margin</span>
+                <span class="confidence-col-value" style="color: var(--color-primary);">± 18.95 PKR (1 MAE)</span>
+              </div>
+              <div class="confidence-col">
+                <span class="confidence-col-label">Upper Confidence Bound</span>
+                <span id="upperBoundValue" class="confidence-col-value" style="color: var(--color-success);">PKR 3,864.1</span>
+              </div>
+            </div>
+
+            <!-- Farmer Advisory Box -->
+            <div id="coopAdvisoryBox" class="advisory-box advisory-favorable">
+              <span id="advisoryIcon" class="advisory-icon">📈</span>
+              <div class="advisory-content">
+                <h4 id="advisoryTitle">Bullish Outlook - Favorable Market Timing</h4>
+                <p id="advisoryMessage">
+                  Prices are expected to remain firm. GreenField farmers are advised to stagger bulk wholesale deliveries.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Trajectory Chart Card -->
+          <div class="card chart-card" style="margin-top: var(--space-lg);">
+            <div class="card-header">
+              <h3 class="card-title">
+                <span class="card-title-icon">📈</span>
+                5-Week Price Trajectory & Forecast Corridor
+              </h3>
+              <span id="resultTargetDate" class="badge badge-info" style="font-size: 0.75rem;">Week Forecast</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="forecastTrajectoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historical Projections Log Table -->
+        <div class="card" style="margin-top: var(--space-md);">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="card-title-icon">📜</span>
+              Recent Forecast Log
+            </h3>
+            <div style="display: flex; gap: var(--space-xs);">
+              <button id="exportCsvBtn" class="btn btn-sm btn-secondary" title="Download CSV for records">
+                📥 Export CSV
+              </button>
+              <button id="clearHistoryBtn" class="btn btn-sm btn-secondary" title="Clear log">
+                ✕ Clear
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Crop</th>
+                  <th>Target Date</th>
+                  <th>Forecast Price</th>
+                  <th>Range (PKR)</th>
+                  <th>Generated At</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <div>
+        <strong>GreenField Farmers Co-op</strong> • Crop Price Forecasting Intelligence v1.0
+      </div>
+      <div>
+        Designed & Deployed by <strong>Mushtaq Ahmad</strong> (Ezitech ML Internship)
+      </div>
+    </footer>
+  </main>
+
+  <!-- Model Card Transparency Modal Dialog -->
+  <div id="modelCardModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📋 GreenField Model Card & Governance Specification</h3>
+        <button id="closeModelCardBtn" class="modal-close-btn" title="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="color: var(--color-primary-dark); margin-bottom: 6px;">1. Model Overview & Architecture</h4>
+        <p style="margin-bottom: 14px;">
+          The production system runs an ensemble <strong>Gradient Boosting Regressor</strong> with 150 estimators, standard scaling, and one-hot encoding for categorical crop commodities.
+        </p>
+
+        <h4 style="color: var(--color-primary-dark); margin-bottom: 6px;">2. Performance Benchmark Summary</h4>
+        <table class="data-table" style="margin-bottom: 14px;">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>RMSE (PKR)</th>
+              <th>MAE (PKR)</th>
+              <th>R² Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Baseline Persistence (yt)</td>
+              <td>56.12</td>
+              <td>42.13</td>
+              <td>0.9950</td>
+            </tr>
+            <tr>
+              <td>Linear Regression Baseline</td>
+              <td>46.85</td>
+              <td>35.40</td>
+              <td>0.9971</td>
+            </tr>
+            <tr>
+              <td><strong>Gradient Boosting (Champion)</strong></td>
+              <td><strong>26.40</strong></td>
+              <td><strong>18.95</strong></td>
+              <td><strong>0.9991</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color: var(--color-primary-dark); margin-bottom: 6px;">3. Assumptions & Limitations</h4>
+        <ul style="padding-left: 20px; margin-bottom: 14px;">
+          <li>Assumes regular mandi market trading without sudden statutory price freezes or unexpected cross-border trade bans.</li>
+          <li>Calibrated specifically for Wheat, Rice (Paddy), and Potato regional markets.</li>
+          <li>Extreme 100-year catastrophic flooding or unseasonal climate anomalies may deviate outside typical ±1.0 MAE bands.</li>
+        </ul>
+
+        <h4 style="color: var(--color-primary-dark); margin-bottom: 6px;">4. Ethical Safeguards</h4>
+        <p>
+          Forecasts provide confidence bounds to prevent false precision and protect smallholder farmers from distress selling. Final selling agreements remain with cooperative members.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Scripts (Modular Architecture) -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

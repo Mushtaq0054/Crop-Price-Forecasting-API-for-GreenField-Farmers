@@ -1,0 +1,309 @@
+/* ==========================================================================
+   GreenField Farmers Co-op - Crop Price Forecasting Dashboard
+   Dashboard Specific Views & Results Styling (Full-Screen Optimized)
+   ========================================================================== */
+
+/* Benchmark Ticker Cards */
+.benchmark-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.benchmark-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.benchmark-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.benchmark-wheat .benchmark-icon-box {
+  background: var(--crop-wheat-bg);
+  border: 1px solid var(--crop-wheat-border);
+}
+
+.benchmark-rice .benchmark-icon-box {
+  background: var(--crop-rice-bg);
+  border: 1px solid var(--crop-rice-border);
+}
+
+.benchmark-potato .benchmark-icon-box {
+  background: var(--crop-potato-bg);
+  border: 1px solid var(--crop-potato-border);
+}
+
+.benchmark-details {
+  flex: 1;
+}
+
+.benchmark-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.benchmark-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.benchmark-meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Forecast Result Hero Card */
+.forecast-hero-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f4fbf5 100%);
+  border: 2px solid rgba(46, 125, 50, 0.25);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.forecast-hero-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(46, 125, 50, 0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.forecast-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.forecast-crop-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.forecast-price-display {
+  margin: var(--space-md) 0;
+}
+
+.price-meta-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.price-figure-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.predicted-price-value {
+  font-size: 3.4rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.predicted-price-unit {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Confidence Interval Breakdown */
+.confidence-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.confidence-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.confidence-col-label {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.confidence-col-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Advisory Alert Box */
+.advisory-box {
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-lg);
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  font-size: 0.95rem;
+  border-left: 5px solid;
+}
+
+.advisory-favorable {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: #14532d;
+}
+
+.advisory-caution {
+  background: var(--color-warning-bg);
+  border-color: var(--color-accent);
+  color: #78350f;
+}
+
+.advisory-neutral {
+  background: var(--color-info-bg);
+  border-color: var(--color-info);
+  color: #0c4a6e;
+}
+
+.advisory-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.advisory-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+/* Empty State Placeholder */
+.empty-forecast-state {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  color: var(--text-muted);
+}
+
+.empty-forecast-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.6;
+}
+
+.empty-forecast-state h3 {
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  margin-bottom: var(--space-xs);
+}
+
+/* Charts Wrapper */
+.chart-card {
+  position: relative;
+  min-height: 380px;
+  width: 100%;
+}
+
+.chart-container {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+/* Full Width Table Styling for Historical Projections */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--bg-surface-muted);
+  padding: 12px 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border-subtle);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+}
+
+.data-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+
+.data-table tr:hover td {
+  background: #f8fafc;
+}
+
+.table-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+/* Server Endpoint Config Bar */
+.endpoint-config-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--bg-surface-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.endpoint-select {
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  outline: none;
+}
