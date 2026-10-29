@@ -249,17 +249,16 @@ class PredictionResponse(BaseModel):
 # API ENDPOINTS
 # -------------------------------------------------------------
 @app.get("/", tags=["Health"])
-def root(request: Optional[Request] = None):
+def root(request: Request):
     """
     Root endpoint:
     - If accessed by a browser (Accept: text/html), serves the interactive Frontend Dashboard directly.
     - If accessed by an API client / test runner, returns JSON status metadata.
     """
     index_file = os.path.join(FRONTEND_DIR, "index.html")
-    if request is not None:
-        accept_header = request.headers.get("accept", "")
-        if "text/html" in accept_header and os.path.exists(index_file):
-            return FileResponse(index_file)
+    accept_header = request.headers.get("accept", "")
+    if "text/html" in accept_header and os.path.exists(index_file):
+        return FileResponse(index_file)
 
     return {
         "status": "online",
